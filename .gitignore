@@ -1,0 +1,6 @@
+*.dropbox
+main.pdf
+*.log
+*.out
+*.aux
+*.synctex.gz
