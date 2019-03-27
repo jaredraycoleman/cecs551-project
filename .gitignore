@@ -4,3 +4,6 @@ main.pdf
 *.out
 *.aux
 *.synctex.gz
+*.blg
+*.bbl
+*.dvi
