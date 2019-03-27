@@ -132,7 +132,52 @@ The latter approach has two big advantages: it can represent distributions in a 
 
 \section{Graph Convolutional Networks}
 \subsection{Background}
-\subsection{Overview}
+Deep learning paradigms such as convolutional neural networks (CNN) have proven very successful on Euclidean data such as images, text and video.  However, there is a growing amount of non-Euclidean data, specifically graphs, that need effective analysis. In a standard CNN, convolutions are relatively simple to compute, as input sizes are always uniform. Graphs make this more complicated, as they can have different numbers of unordered nodes, each with different numbers of neighbors~\cite{Wu2019}. The first major research on graph convolutional networks (GCN) is based on spectral graph theory~\cite{Bruna2013}, which is the analysis the properties and the structure of a graph from its spectrum, or set of eigenvalues and eigenvectors. In this overview we will mostly discuss Kipf et al.'s research on semi-supervised classifications using GCNs~\cite{Kipf2016}, which is based on a first-order approximation of the localized spectral filters on graphs developed in previous research on GCNs~\cite{Bruna2013}. 
+
+GCNs based on spectral graph theory look at spectral convolutions as removing noise from a graph signal $x \in \mathbb{R}^n$ with a filter $g_\theta$,
+\stepcounter{equation}
+\setcounter{equation}{0}
+
+\begin{equation}
+\label{spectral_prop}
+g_\theta \star x = Ug_\theta U^Tx
+\end{equation}
+$g_\theta$ is understood as a function of eigenvalues of the normalized graph laplacian, $L = I_N - D^{-\frac{1}{2}}AD^{-\frac{1}{2}}$ where $A$ is the graph's adjacency matrix and $D$ is a diagonal matrix of node degrees, $D_{ii} = \sum_{j} (A_{i,j})$. $L$ is a real symmetric posiive semidefinite, so it can be factored to $L = U\Lambda U^T$, where $U$ is a matrix of eigenvectors ordered by eigenvalues, and $\Lambda$ is is the diagonal matrix of eigenvalues.  Multiplication with $U$ is $\mathcal{O}(N^2) $ and finding the eigenvectors and eigenvalues of $L$ can grow very expensive for large graphs. To reduce the computational cost of GCNs, a truncated expansion of Chebyshev polynomials could be used to approximate $g_\theta (\Lambda)$~\cite{Defferrard2016}.
+Chebyshev polynomials are defined recursively as $T_k(x) = 2xT_{k-1}(x) - T_{k-2}(x)$ with $T_0(x) = 1$ and $T_1(x) = x$~\cite{Hammond2011}.
+
+\begin{equation}
+\label{cheby_prop}
+g_{\theta'} \star x \approx \sum\limits_{k=0}^{K} \theta'_k T_k (\tilde{L})x
+\end{equation}
+
+$T_k(\tilde{L})$ is the Chebyshev polynomial of order $k$, and $\tilde{L} = \frac{2}{\lambda_{max}} L - I_n$. This approximation avoids any multiplication with $U$, significantly reducing the computation time. Because $T_k(\tilde{L})$ is only dependent on the neighbors at most $K$ steps away, whereas the entire graph is used in Equation $(\ref{spectral_prop})$.
+
+The propagation rule proposed in Kipf et al. further approximates Equation 
+$(\ref{cheby_prop})$ by assuming $K = 1$, which reduces the computational cost even more and reduces overfitting on graphs with wide node degree distributions~\cite{Kipf2016}. Furthermore, they set $\lambda_{max} = 2$, which reduces $\tilde{L} = \frac{2}{2}L - I_N = I_n - D^{-\frac{1}{2}}AD^{-\frac{1}{2}} - I_N = D^{-\frac{1}{2}}AD^{-\frac{1}{2}}$.  These simplified values can be plugged in to Equation $(\ref{cheby_prop})$:
+\begin{equation}
+\label{reduce_k}
+g_{\theta'} \star x \approx \sum\limits_{k=0}^{1} \theta'_k T_k (D^{-\frac{1}{2}}AD^{-\frac{1}{2}})x = \theta'_0 T_0(D^{-\frac{1}{2}}AD^{-\frac{1}{2}})x + \theta'_1 T_1(D^{-\frac{1}{2}}AD^{-\frac{1}{2}})x 
+\end{equation}
+
+Recalling the recursive definition of Chebyshev polynomials described above, this simplifies to:
+\begin{equation}
+\label{simplified_1stcheby}
+g_{\theta'} \star x \approx \theta'_0x + \theta'_1 D^{-\frac{1}{2}}AD^{-\frac{1}{2}}x 
+\end{equation}
+To reduce overfitting and minimize operations per layer, they only used a single parameter $\theta = \theta'_0 = -\theta'_1$, allowing the equation to be factored in this form:
+\begin{equation}
+\label{single_param}
+g_\theta \approx \theta(I_N + D^{-\frac{1}{2}}AD^{-\frac{1}{2}})x
+\end{equation}
+One issue with this approximation is that $\lambda_{max} = 2$, meaning the eigenvalue range is $[0,2]$, which they found could cause numerical instability and exploding/vanish gradients in the GCN~\cite{Kipf2016}.  They added self connections to the adjacency matrix, $\tilde{A} = A + I_N$, and used the diagonal matrix of the node degrees of $\tilde{A}$.  These addition change Equation \ref{single_param} to:
+\begin{equation}
+\label{renormalized}
+Z = \tilde{D}^{-\frac{1}{2}}\tilde{A}\tilde{D}^{-\frac{1}{2}}X\Theta
+\end{equation}
+
+$X \in \mathbb{R}^{N x C}$ is the signal, and $\Theta \in \mathbb{R}^{C x F}$ is the filter parameter matrix, and $\Theta \in \mathbb{R}^{N x F}$ is the convolved signal matrix~\cite{Kipf2016}. The renormalized adjancency matrix $\tilde{D}^{-\frac{1}{2}}\tilde{A}\tilde{D}^{-\frac{1}{2}}$ can be represented as a sparse matrix, so $\tilde{D}^{-\frac{1}{2}}\tilde{A}\tilde{D}^{-\frac{1}{2}}X$ only has a complexity of $\mathcal{O}(|\mathcal{E}|)$, giving the entire operation a complexity of $\mathcal{O}(|\mathcal{E}|FC)$,
+
+
 
 
 \section{Conclusion \& Future Work}
