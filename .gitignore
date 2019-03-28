@@ -3,6 +3,8 @@ main.pdf
 *.log
 *.out
 *.aux
+*.bbl
+*.blg
 *.synctex.gz
 *.blg
 *.bbl
