@@ -44,7 +44,7 @@
 \maketitle
 
 \begin{abstract}
-   Since its introduction in 2014, the Generative Adverserial Network (GAN) has been adapted and improved upon at Machine Learning conferences all over the world. In this short survey, we discuss the fundamentals of GAN and one of its successors, the Wasserstein GAN (WGAN).
+   Since its introduction in 2014, the Generative Adverserial Network (GAN) has been adapted and improved upon at Machine Learning conferences all over the world. In this short survey, we discuss the fundamentals of GAN and one of its successors, the Wasserstein GAN (WGAN). In the second half of our report, we discuss the application of convolutional neural networks on graphs through the Graph Convolutional Network (GCN), which has shown to be a computationally efficient and accurate method of node classification via semi-supervised learning.
 \end{abstract}
 
 \subfile{introduction}
@@ -55,6 +55,9 @@
 \section{Conclusion \& Future Work}
   \subsection{Generative Adversarial Networks}
   \subsection{Graph Convolutional Networks}
+  The GCN model is shown to be more effective than other proposed methods of deep learning on graph data, but it is not without its flaws. First, the memory requirement is $\mathcal{O}(\mathcal{E})$g, growing linearly with the dataset, so very large datasets can cause problems. Second, GCN is also designed to work only with undirected graphs. Third, this model does not function well with more than a few layers.
+  For the next part of the semester, we plan on researching papers that improve upon the GCN model discussed in this paper. One such paper by Li, et al. focuses on further understanding GCN, and proposes a combined co-training and self-training method to improve classification accuracy without requiring additional labels in the training set~\cite{Li2018}. Another paper proposes adaptive layer-wise sampling to accelerate training and reduce memory requirements~\cite{Huang2018}. A third paper we will research develops a new method of applying convolutional operations on graphs called learnable graph convolutional layer, where they transform sections of a graph into 1-D grids, which is then fed into a 1-D convolutional neural network~\cite{Gao2018}. Their method yields higher classification accuracy with less memory usage than GCN. With these promising new studies, we will gain a deeper understanding of graph neural networks.
+  
 
 \bibliographystyle{plain}
 \bibliography{references}
