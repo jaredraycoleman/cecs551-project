@@ -1,21 +1,6 @@
 \documentclass{article}
 
-% if you need to pass options to natbib, use, e.g.:
-%     \PassOptionsToPackage{numbers, compress}{natbib}
-% before loading neurips_2018
-
-% ready for submission
-% \usepackage{neurips_2018}
-
-% to compile a preprint version, e.g., for submission to arXiv, add add the
-% [preprint] option:
-%     \usepackage[preprint]{neurips_2018}
-
-% to compile a camera-ready version, add the [final] option, e.g.:
-     \usepackage[final]{nips_2018}
-
-% to avoid loading the natbib package, add option nonatbib:
-%     \usepackage[nonatbib]{neurips_2018}
+\usepackage[final]{nips_2018}
 
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
@@ -33,14 +18,6 @@
 \usepackage{graphicx}
 
 \title{CECS 551 Project}
-
-% The \author macro works with any number of authors. There are two commands
-% used to separate the names and addresses of multiple authors: \And and \AND.
-%
-% Using \And between authors leaves it to LaTeX to determine where to break the
-% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
-% authors names on the first line, and the last on the second line, try using
-% \AND instead of \And before the third author name.
 
 \author{%
   Jared R.~Coleman\\
@@ -70,28 +47,14 @@
    Since its introduction in 2014, the Generative Adverserial Network (GAN) has been adapted and improved upon at Machine Learning conferences all over the world. In this short survey, we discuss the fundamentals of GAN and one of its successors, the Wasserstein GAN (WGAN).
 \end{abstract}
 
-
-\section{Introduction} 
-
 \subfile{introduction}
-
-\section{Generative Adversarial Networks (GAN)}
-
 \subfile{gan}
-
-\section{Wasserstein GAN}
-
 \subfile{wgan}
-
-\section{Graph Convolutional Networks}
-
 \subfile{gcn}
 
 \section{Conclusion \& Future Work}
-
-\subsection{Generative Adversarial Networks}
-
-\subsection{Graph Convolutional Networks}
+  \subsection{Generative Adversarial Networks}
+  \subsection{Graph Convolutional Networks}
 
 \bibliographystyle{plain}
 \bibliography{references}

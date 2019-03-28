@@ -1,4 +1,6 @@
 
+\section{Wasserstein GAN}
+
 When training GAN models the goal is to find a distribution $P_{\theta}$ that is the most similar to a real distribution $P_{r}$, where $\theta$ is the parameters. There are two approaches to perform this task:
 1. Define a parametric family of densities $P_{\theta}$, which is as a differentiable function $P_{\theta} >= 0$ and integral ($P_{\theta}$(x) dx) = 1, where x is a real data sample. Try to directly learn $P_{theta}$ by optimizing it through maximum likelihood estimation (MLE).
 2. Define a variable Z with an existent distribution $p(z)$ and pass it through the Generator, $g_{\theta}$, that will generate samples that follow the distribution $P_{theta}$. By updating $\theta$ the $P_{theta}$ can be modified to get more similar to $P_{r}$.
