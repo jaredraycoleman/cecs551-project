@@ -15,9 +15,9 @@ $g_\theta$ is understood as a function of eigenvalues of the normalized graph la
 Chebyshev polynomials are defined recursively as $T_k(x) = 2xT_{k-1}(x) - T_{k-2}(x)$ with $T_0(x) = 1$ and $T_1(x) = x$~\cite{Hammond2011}.
 \begin{equation}
 \label{cheby_prop}
-g_{\theta'} \star x \approx \sum\limits_{k=0}^{K} \theta'_k T_k (\tilde{L})x
+g_{\theta'} \star x \approx U(\sum\limits_{k=0}^{K}\theta'_k T_k (\tilde{\Lambda}))U^Tx = \sum\limits_{k=0}^{K} \theta'_k T_k (\tilde{L})x
 \end{equation}
-$T_k(\tilde{L})$ is the Chebyshev polynomial of order $k$, and $\tilde{L} = \frac{2}{\lambda_{max}} L - I_n$. This approximation avoids any multiplication with $U$, significantly reducing the computation time. Because $T_k(\tilde{L})$ is only dependent on the neighbors at most $K$ steps away, whereas the entire graph is used in Equation $(\ref{spectral_prop})$.
+This simplification can occur because $U \Lambda^k U^T = (U \Lambda U^T)^k = L^k $, so you can simplify the equation by using the Chebyshev polynomial of $\tilde{L} = \frac{2}{\lambda_{max}} L - I_n$. This approximation avoids any multiplication with $U$, significantly reducing the computation time.
 
 The propagation rule proposed in Kipf et al. further approximates Equation 
 $(\ref{cheby_prop})$ by assuming $K = 1$, which reduces the computational cost even more and reduces overfitting on graphs with wide node degree distributions~\cite{Kipf2016}. Furthermore, they set $\lambda_{max} = 2$, which reduces $\tilde{L} = \frac{2}{2}L - I_N = I_n - D^{-\frac{1}{2}}AD^{-\frac{1}{2}} - I_N = D^{-\frac{1}{2}}AD^{-\frac{1}{2}}$. These simplified values can be plugged in to Equation $(\ref{cheby_prop})$:
@@ -71,7 +71,7 @@ $g_\theta$ is understood as a function of eigenvalues of the normalized graph la
 Chebyshev polynomials are defined recursively as $T_k(x) = 2xT_{k-1}(x) - T_{k-2}(x)$ with $T_0(x) = 1$ and $T_1(x) = x$~\cite{Hammond2011}.
 \begin{equation}
 \label{cheby_prop}
-g_{\theta'} \star x \approx \sum\limits_{k=0}^{K} \theta'_k T_k (\tilde{L})x
+g_{\theta'} \star x \approx U\sum\limits_{k=0}^{K} \theta'_k T_k (\tilde{\Lambda})U^Tx = \sum\limits_{k=0}^{K} \theta'_k T_k (\tilde{L})x
 \end{equation}
 $T_k(\tilde{L})$ is the Chebyshev polynomial of order $k$, and $\tilde{L} = \frac{2}{\lambda_{max}} L - I_n$. This approximation avoids any multiplication with $U$, significantly reducing the computation time. Because $T_k(\tilde{L})$ is only dependent on the neighbors at most $K$ steps away, whereas the entire graph is used in Equation $(\ref{spectral_prop})$.
 
