@@ -7,3 +7,5 @@ The goal of any generative model is to learn a probability distribution from dat
 In practice, we want to find $argmin_\theta(d(P_r, P_\theta))$, where $d$ is some measure of distance (divergence) between probability distributions. If we were to find $P_\theta=P_r$, then drawing a sample from $P_\theta$ would be equivalent to drawing a sample from $P$. In practice, we hope to find a sufficiently close $P_\theta$ so that drawing a sample from $P_\theta$ \textit{appears} equivalent to drawing a sample from $P_r$.
 
 There are many approaches to generative modeling, such as PixelRNN~\cite{Oord2016}, PixelCNN~\cite{Oord2016a}, and Variational Autoencoders (VAE)~\cite{Pu2016}. In this paper however, we will focus on the Generative Adversarial Network~\cite{Goodfellow2017} and one of its most successful successors, the Wasserstein Generative Adversarial Network~\cite{Arjovsky2017}.
+
+\subsection{}

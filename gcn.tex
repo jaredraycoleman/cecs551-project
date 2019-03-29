@@ -1,7 +1,6 @@
 
 \section{Graph Convolutional Networks}
 
-\subsection{Background}
 The success of deep learning paradigms such as convolutional neural networks (CNN) with Euclidean data (images, text and video) has led to research on how non-Euclidean data such as graphs can be effectively analyzed through deep learning. In a standard CNN, convolutions are relatively simple to compute, as input sizes are always uniform. Graphs make this more complicated, as they can have different numbers of unordered nodes, each with different numbers of neighbors~\cite{Wu2019}. Much of the research into deep learning with graphs is based on spectral graph theory, which is the analysis the properties and the structure of a graph from its spectrum, or set of eigenvalues and eigenvectors. In this overview we will focus on Kipf et al.'s research on semi-supervised classifications using Graph Convolutional Networks (GCN)~\cite{Kipf2016}, which uses a first-order approximation of the spectral filters on graphs developed in previous research on GCNs~\cite{Bruna2013}. These GCNs look at spectral convolutions as removing noise from a graph signal $x \in \mathbb{R}^n$ with a filter $g_\theta$,
 \begin{equation}
 \label{spectral_prop}

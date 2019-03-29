@@ -1,4 +1,6 @@
 
+\subsection{Wasserstein GAN}
+
 When training GAN models, the goal is to find a distribution $P_{\theta}$ that is the most similar to a real distribution $P_{r}$, with parameters $\theta$. One approach to acheiving this goal is to define a parametric family of densities $P_{\theta} \geq 0$, which is a differentiable. $P_{theta}$ can then be optimized through maximum likelihood estimation (MLE):
 
 \begin{equation}
@@ -19,11 +21,7 @@ To measure the similarity (distance) between the distributions, the authors intr
 
 where $\Pi(P_{r}, P_{g})$ is the set of all joint distributions $\gamma(x,y)$ whose marginals are $P_{r}$ and $P_{g}$ and $\gamma$ intuitively represents the "mass" that must be moved from x to y in order to transform the distribution  $P_{g}$ into $P_{r}$. In other words, W is the "cost" of the optimal transport.
 
-The Earth Mover distance (\ref{eq:em}) is preferable to \ref{eq:js} because it is defined even when both distribution are close to zero. 
-
-
-\subsection{The WGAN}
-The Earth Mover distance has many advantages, but one major problem is that its infimum is highly intractable. In order to use EM, Kantorovich-Rubinstein duality is used to approximate it:
+The Earth Mover distance (\ref{eq:em}) is preferable to \ref{eq:js} because it is defined even when both distribution are close to zero. The Earth Mover distance has many advantages, but one major problem is that its infimum is highly intractable. In order to use EM, Kantorovich-Rubinstein duality is used to approximate it:
 \begin{center}
 	$W(P_{r},P_{\theta}) = sup_{\Vert f \Vert_{L \leq 1}} \mathbb{E}_{x \sim P_{r}}[f(x)] - \mathbb{E}_{x \sim P_{\theta}}[f(x)] $
 \end{center}
@@ -36,14 +34,16 @@ where the supremum is over all 1-Lipschitz functions f : X $\rightarrow$ R. Cons
 For optimization purposes, there is no need to know the value of K since it is a constant fixed throughout the process and will get absorbed into the hyperparameter tuning.
 
 
-\subsubsection {Training}
+\subsection {WGAN Training}
 
 Recall that the goal is for $P_{\theta}=P_{r}$. First, the optimal distance function $f_{w}$ is calculated for a fixed value $P_{\theta}$ of the generator. Then,  performing  backpropagation through $W(P_{r}, P_{\theta}(z))$ and sampling several z, the gradient for $\theta$ is found. The final step is to update $\theta$ and repeat the process. Figure \ref{fig:wgan} illustrates the process and the network's architecture. 
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[scale=0.4]{media/WGAN.png}
+	\includegraphics[scale=0.35]{media/WGAN.png}
 	\caption{WGAN Architecture. Using $z$, the critic learns a function $f_w$ for estimating the distance between real and learned distributions.} 
 	\label{fig:wgan}
 \end{figure}
+
+Overall, WGAN increases learning stability, avoids problems like mode-collapse, and provides learning curves helpful for debugging and hyperparameter searching. 
 
