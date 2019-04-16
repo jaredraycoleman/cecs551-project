@@ -9,3 +9,4 @@ main.pdf
 *.blg
 *.bbl
 *.dvi
+**/.ipynb_checkpoints
