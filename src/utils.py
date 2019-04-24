@@ -70,6 +70,7 @@ def load_data(dataset_str):
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
 
     labels = np.vstack((ally, ty))
+    print(labels.shape)
     labels[test_idx_reorder, :] = labels[test_idx_range, :]
 
     idx_test = test_idx_range.tolist()

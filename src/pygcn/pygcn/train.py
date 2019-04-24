@@ -6,7 +6,7 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-from pygcn.utils import load_data, accuracy
+from pygcn.utils import load_data, load_data_tf, accuracy
 from pygcn.models import GCN
 
 # Training settings
@@ -38,7 +38,7 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 # Load data
-adj, features, labels, idx_train, idx_val, idx_test = load_data(args.dataset, preprocessed=True)
+adj, features, labels, idx_train, idx_val, idx_test = load_data_tf(args.dataset)
 print(idx_test)
 # Model and optimizer
 model = GCN(nfeat=features.shape[1],
@@ -88,10 +88,11 @@ def test():
     global idx_test
     model.eval()
     output = model(features, adj)
-    idx_test = idx_test[idx_test < 3312]
-    output_test = output[idx_test]
-    labels_test = labels[idx_test]
-    loss_test = F.nll_loss(output_test, labels_test)
+    #idx_test = idx_test[idx_test < 3312]
+    #output_test = output[idx_test]
+    #labels_test = labels[idx_test]
+    #loss_test = F.nll_loss(output_test, labels_test)
+    loss_test = F.nll_loss(output[idx_test], labels[idx_test])
     acc_test = accuracy(output[idx_test], labels[idx_test])
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.item()),

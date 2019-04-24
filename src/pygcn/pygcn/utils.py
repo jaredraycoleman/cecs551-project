@@ -104,7 +104,7 @@ def load_data_tf(dataset_str='cora'):
     #     max_idx = tx.shape[0] + allx.shape[0]
     #     test_idx_reorder = [e for e in test_idx_reorder if e < max_idx]    
     #     test_idx_range = np.sort(test_idx_reorder)
-    
+   
     if dataset_str == 'citeseer':
             # Fix citeseer dataset (there are some isolated nodes in the graph)
             # Find isolated nodes, add them as zero-vecs into the right position
@@ -116,6 +116,7 @@ def load_data_tf(dataset_str='cora'):
             ty_extended[test_idx_range-min(test_idx_range), :] = ty
             ty = ty_extended
     
+
     features = sp.vstack((allx, tx)).tolil()
     features[test_idx_reorder, :] = features[test_idx_range, :]
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph)).tocoo()
@@ -123,8 +124,10 @@ def load_data_tf(dataset_str='cora'):
     labels = np.vstack((ally, ty))
     labels[test_idx_reorder, :] = labels[test_idx_range, :]
 
-    labels = torch.LongTensor(np.where(labels)[1])
-    
+    labels = torch.argmax(torch.LongTensor(labels), dim=1)
+
+    #labels = torch.LongTensor(np.where(labels)[1])
+
     adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
 
     features = normalize(features)
@@ -162,6 +165,8 @@ def load_data_pt(dataset="cora"):
                                         dtype=np.dtype(str))
     features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
     labels = encode_onehot(idx_features_labels[:, -1])
+    print(labels.shape)
+    print(labels)
 
     # build graph
     idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
@@ -185,14 +190,14 @@ def load_data_pt(dataset="cora"):
     idx_test = range(500, 1500)
 
     features = torch.FloatTensor(np.array(features.todense()))
-    labels = torch.LongTensor(np.where(labels)[1])
+    new_labels = torch.LongTensor(np.where(labels)[1])
     adj = sparse_mx_to_torch_sparse_tensor(adj)
 
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
     idx_test = torch.LongTensor(idx_test)
 
-    return adj, features, labels, idx_train, idx_val, idx_test
+    return adj, features, new_labels, idx_train, idx_val, idx_test, labels
 
 
 def normalize(mx):
@@ -224,13 +229,13 @@ def sparse_mx_to_torch_sparse_tensor(sparse_mx):
 
 if __name__ == '__main__':
     import pprint 
-    stuff = dict(zip(['adj', 'features', 'labels', 'idx_train', 'idx_val', 'idx_test'], load_data_tf('citeseer')))
+    stuff = dict(zip(['adj', 'features', 'labels', 'idx_train', 'idx_val', 'idx_test'], load_data_tf('pubmed')))
     
     for key, item in stuff.items():
-        stuff[key] = (item.shape, item)
+        stuff[key] = (item.shape)
 
     pprint.pprint(stuff)
-
+'''
     import matplotlib.pyplot as plt 
 
     elements = ['adj', 'features', 'labels', 'idx_train', 'idx_val', 'idx_test']
@@ -246,3 +251,4 @@ if __name__ == '__main__':
     nx.draw(g_pt, ax=ax1)
     nx.draw(g_tf, ax=ax2)
     plt.show()
+'''
