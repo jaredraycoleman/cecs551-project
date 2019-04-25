@@ -7,6 +7,7 @@ import pickle as pkl
 import networkx as nx
 import scipy.sparse as sp
 from scipy.sparse.linalg.eigen.arpack import eigsh
+import os
 
 scriptdir = pathlib.Path(__file__).resolve().parent
 
@@ -46,12 +47,20 @@ def sparse_to_tuple(sparse_mx):
 
     return sparse_mx
 
+def save_sparse_csr(filename,array):
+    np.savez(filename,data = array.data ,indices=array.indices,
+             indptr =array.indptr, shape=array.shape )
+def load_sparse_csr(filename):
+    loader = np.load(filename)
+    return sp.csr_matrix((  loader['data'], loader['indices'], loader['indptr']),
+                         shape = loader['shape']).astype(np.float16)
+
 def load_data_tf(dataset_str='cora'):
     """
     Loads input data from gcn/data directory
 
     ind.dataset_str.x => the feature vectors of the training instances as scipy.sparse.csr.csr_matrix object;
-    ind.dataset_str.tx => the feature vectors of the test instances as scipy.sparse.csr.csr_matrix object;
+    ind.dataset_str.tx => t`he feature vectors of the test instances as scipy.sparse.csr.csr_matrix object;
     ind.dataset_str.allx => the feature vectors of both labeled and unlabeled training instances
         (a superset of ind.dataset_str.x) as scipy.sparse.csr.csr_matrix object;
     ind.dataset_str.y => the one-hot labels of the labeled training instances as numpy.ndarray object;
@@ -80,31 +89,6 @@ def load_data_tf(dataset_str='cora'):
     test_idx_reorder = parse_index_file(str(pathlib.Path('data', f'ind.{dataset_str}.test.index')))
     test_idx_range = np.sort(test_idx_reorder)
 
-    # if dataset_str == 'citeseer':
-    #     # Fix citeseer dataset (there are some isolated nodes in the graph)
-    #     # Find isolated nodes, add them as zero-vecs into the right position
-    #     test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder)+1)
-    #     # tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
-    #     # tx_extended[test_idx_range-min(test_idx_range), :] = tx
-    #     # tx = tx_extended
-    #     ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
-    #     ty_extended[test_idx_range-min(test_idx_range), :] = ty
-    #     _ty = ty_extended
-
-    #     bads = np.where(~_ty.any(axis=1))[0]
-
-    #     for node, neighbors in graph.items():
-    #         for bad in bads:
-    #             if bad in neighbors:
-    #                 neighbors.remove(bad)
-
-    #     for bad in bads:
-    #         del graph[bad]
-
-    #     max_idx = tx.shape[0] + allx.shape[0]
-    #     test_idx_reorder = [e for e in test_idx_reorder if e < max_idx]    
-    #     test_idx_range = np.sort(test_idx_reorder)
-   
     if dataset_str == 'citeseer':
             # Fix citeseer dataset (there are some isolated nodes in the graph)
             # Find isolated nodes, add them as zero-vecs into the right position
@@ -115,12 +99,37 @@ def load_data_tf(dataset_str='cora'):
             ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
             ty_extended[test_idx_range-min(test_idx_range), :] = ty
             ty = ty_extended
-    
+    if dataset_str == 'nell.0.001':
+        # Find relation nodes, add them as zero-vecs into the right position
+        test_idx_range_full = range(allx.shape[0], len(graph))
+        isolated_node_idx = np.setdiff1d(test_idx_range_full, test_idx_reorder)
+        tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
+        tx_extended[test_idx_range-allx.shape[0], :] = tx
+        tx = tx_extended
+        ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
+        ty_extended[test_idx_range-allx.shape[0], :] = ty
+        ty = ty_extended
 
-    features = sp.vstack((allx, tx)).tolil()
-    features[test_idx_reorder, :] = features[test_idx_range, :]
+        features = sp.vstack((allx, tx)).tolil()
+        features[test_idx_reorder, :] = features[test_idx_range, :]
+
+        idx_all = np.setdiff1d(range(len(graph)), isolated_node_idx)
+
+        if not os.path.isfile("data/{}.features.npz".format(dataset_str)):
+            print("Creating feature vectors for relations - this might take a while...")
+            features_extended = sp.hstack((features, sp.lil_matrix((features.shape[0], len(isolated_node_idx)))),
+                                          dtype=np.int32).todense()
+            features_extended[isolated_node_idx, features.shape[1]:] = np.eye(len(isolated_node_idx))
+            features = sp.csr_matrix(features_extended).astype(np.float16)
+            print("Done!")
+            save_sparse_csr("data/{}.features".format(dataset_str), features)
+        else:
+            features = load_sparse_csr("data/{}.features.npz".format(dataset_str))
+    else:
+        features = sp.vstack((allx, tx)).tolil()
+        features[test_idx_reorder, :] = features[test_idx_range, :]
+
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph)).tocoo()
-
     labels = np.vstack((ally, ty))
     labels[test_idx_reorder, :] = labels[test_idx_range, :]
 
@@ -229,7 +238,8 @@ def sparse_mx_to_torch_sparse_tensor(sparse_mx):
 
 if __name__ == '__main__':
     import pprint 
-    stuff = dict(zip(['adj', 'features', 'labels', 'idx_train', 'idx_val', 'idx_test'], load_data_tf('pubmed')))
+    stuff = dict(zip(['adj', 'features', 'labels', 
+    'idx_train', 'idx_val', 'idx_test'], load_data_tf('nell.0.001')))
     
     for key, item in stuff.items():
         stuff[key] = (item.shape)

@@ -20,6 +20,13 @@ def sample_mask(idx, l):
     mask[idx] = 1
     return np.array(mask, dtype=np.bool)
 
+def save_sparse_csr(filename,array):
+    np.savez(filename,data = array.data ,indices=array.indices,
+             indptr =array.indptr, shape=array.shape )
+def load_sparse_csr(filename):
+    loader = np.load(filename)
+    return csr_matrix((  loader['data'], loader['indices'], loader['indptr']),
+                         shape = loader['shape'])
 
 def load_data(dataset_str):
     """
@@ -68,6 +75,35 @@ def load_data(dataset_str):
     features = sp.vstack((allx, tx)).tolil()
     features[test_idx_reorder, :] = features[test_idx_range, :]
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
+
+    if dataset_str == 'nell.0.001':
+        # Find relation nodes, add them as zero-vecs into the right position
+        test_idx_range_full = range(allx.shape[0], len(graph))
+        isolated_node_idx = np.setdiff1d(test_idx_range_full, test_idx_reorder)
+        tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
+        tx_extended[test_idx_range-allx.shape[0], :] = tx
+        tx = tx_extended
+        ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
+        ty_extended[test_idx_range-allx.shape[0], :] = ty
+        ty = ty_extended
+
+        features = sp.vstack((allx, tx)).tolil()
+        features[test_idx_reorder, :] = features[test_idx_range, :]
+
+        idx_all = np.setdiff1d(range(len(graph)), isolated_node_idx)
+
+        if not os.path.isfile("data/{}.features.npz".format(dataset_str)):
+            print("Creating feature vectors for relations - this might take a while...")
+            features_extended = sp.hstack((features, sp.lil_matrix((features.shape[0], len(isolated_node_idx)))),
+                                          dtype=np.int32).todense()
+            features_extended[isolated_node_idx, features.shape[1]:] = np.eye(len(isolated_node_idx))
+            features = sp.csr_matrix(features_extended)
+            print("Done!")
+            save_sparse_csr("data/{}.features".format(dataset_str), features)
+        else:
+            features = load_sparse_csr("data/planetoid/{}.features.npz".format(dataset_str))
+
+        adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
 
     labels = np.vstack((ally, ty))
     print(labels.shape)
