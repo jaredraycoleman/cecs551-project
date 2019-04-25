@@ -99,7 +99,7 @@ def load_data_tf(dataset_str='cora'):
             ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
             ty_extended[test_idx_range-min(test_idx_range), :] = ty
             ty = ty_extended
-    if dataset_str == 'nell.0.001':
+    if dataset_str == 'nell.0.001' or dataset_str == 'nell.0.01':
         # Find relation nodes, add them as zero-vecs into the right position
         test_idx_range_full = range(allx.shape[0], len(graph))
         isolated_node_idx = np.setdiff1d(test_idx_range_full, test_idx_reorder)
@@ -115,21 +115,30 @@ def load_data_tf(dataset_str='cora'):
 
         idx_all = np.setdiff1d(range(len(graph)), isolated_node_idx)
 
-        if not os.path.isfile("data/{}.features.npz".format(dataset_str)):
+        feature_file = dataset_str + ".features.npz"
+        feature_path = pathlib.Path("data", feature_file)
+        if not feature_path.is_file():
             print("Creating feature vectors for relations - this might take a while...")
             features_extended = sp.hstack((features, sp.lil_matrix((features.shape[0], len(isolated_node_idx)))),
                                           dtype=np.int32).todense()
             features_extended[isolated_node_idx, features.shape[1]:] = np.eye(len(isolated_node_idx))
             features = sp.csr_matrix(features_extended).astype(np.float16)
             print("Done!")
-            save_sparse_csr("data/{}.features".format(dataset_str), features)
+            save_sparse_csr(feature_path, features)
         else:
-            features = load_sparse_csr("data/{}.features.npz".format(dataset_str))
+            features = load_sparse_csr(feature_path)
+
+        #features = sp.vstack(features).tolil()
+        #features[test_idx_reorder, :] = features[test_idx_range, :]
+        features = normalize(features)
+        features = sparse_mx_to_torch_sparse_tensor(features)
     else:
         features = sp.vstack((allx, tx)).tolil()
         features[test_idx_reorder, :] = features[test_idx_range, :]
+        features = normalize(features)
+        features = torch.FloatTensor(np.array(features.todense()))
 
-    adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph)).tocoo()
+    adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph)).tocoo().astype(np.float32)
     labels = np.vstack((ally, ty))
     labels[test_idx_reorder, :] = labels[test_idx_range, :]
 
@@ -139,17 +148,12 @@ def load_data_tf(dataset_str='cora'):
 
     adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
 
-    features = normalize(features)
     adj = normalize(adj + sp.eye(adj.shape[0]))
     adj = sparse_mx_to_torch_sparse_tensor(adj)
-
-
-    features = torch.FloatTensor(np.array(features.todense()))
 
     idx_test = test_idx_range.tolist()
     idx_train = range(len(y))
     idx_val = range(len(y), len(y)+500)
-
 
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
@@ -175,7 +179,8 @@ def load_data_pt(dataset="cora"):
     features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
     labels = encode_onehot(idx_features_labels[:, -1])
     print(labels.shape)
-    print(labels)
+    
+    
 
     # build graph
     idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
@@ -211,8 +216,8 @@ def load_data_pt(dataset="cora"):
 
 def normalize(mx):
     """Row-normalize sparse matrix"""
-    rowsum = np.array(mx.sum(1))
-    r_inv = np.power(rowsum, -1).flatten()
+    rowsum = np.array(mx.sum(1), dtype = np.float32)
+    r_inv = np.power(rowsum, -1, where=rowsum!=0).flatten()
     r_inv[np.isinf(r_inv)] = 0.
     r_mat_inv = sp.diags(r_inv)
     mx = r_mat_inv.dot(mx)
@@ -239,7 +244,7 @@ def sparse_mx_to_torch_sparse_tensor(sparse_mx):
 if __name__ == '__main__':
     import pprint 
     stuff = dict(zip(['adj', 'features', 'labels', 
-    'idx_train', 'idx_val', 'idx_test'], load_data_tf('nell.0.001')))
+    'idx_train', 'idx_val', 'idx_test'], load_data_tf('nell.0.01')))
     
     for key, item in stuff.items():
         stuff[key] = (item.shape)

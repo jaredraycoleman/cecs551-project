@@ -88,10 +88,11 @@ def test():
     global idx_test
     model.eval()
     output = model(features, adj)
-    idx_test = idx_test[idx_test < 3312]
-    output_test = output[idx_test]
-    labels_test = labels[idx_test]
-    loss_test = F.nll_loss(output_test, labels_test)
+    #idx_test = idx_test[idx_test < 3312]
+    #output_test = output[idx_test]
+    #labels_test = labels[idx_test]
+    #loss_test = F.nll_loss(output_test, labels_test)
+    loss_test = F.nll_loss(output[idx_test], labels[idx_test])
     acc_test = accuracy(output[idx_test], labels[idx_test])
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.item()),
