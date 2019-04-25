@@ -10,3 +10,4 @@ main.pdf
 *.bbl
 *.dvi
 **/.ipynb_checkpoints
+**/__pycache__
