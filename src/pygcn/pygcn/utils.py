@@ -99,7 +99,7 @@ def load_data_tf(dataset_str='cora'):
             ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
             ty_extended[test_idx_range-min(test_idx_range), :] = ty
             ty = ty_extended
-    if dataset_str == 'nell.0.001':
+    if dataset_str == 'nell.0.001' or dataset_str == "nell.0.01":
         # Find relation nodes, add them as zero-vecs into the right position
         test_idx_range_full = range(allx.shape[0], len(graph))
         isolated_node_idx = np.setdiff1d(test_idx_range_full, test_idx_reorder)
@@ -239,7 +239,7 @@ def sparse_mx_to_torch_sparse_tensor(sparse_mx):
 if __name__ == '__main__':
     import pprint 
     stuff = dict(zip(['adj', 'features', 'labels', 
-    'idx_train', 'idx_val', 'idx_test'], load_data_tf('nell.0.001')))
+    'idx_train', 'idx_val', 'idx_test'], load_data_tf('nell.0.01')))
     
     for key, item in stuff.items():
         stuff[key] = (item.shape)
