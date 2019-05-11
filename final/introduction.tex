@@ -8,18 +8,24 @@ In a typical graph dataset, nodes have a set of features, called the \textit{fea
 
 \begin{figure}
 	\centering
-	\begin{subfigure}{0.4\textwidth} % width of left subfigure
+	\begin{subfigure}{0.32\textwidth} % width of left subfigure 
+		\includegraphics[width=\textwidth]{media/edges.png}
+		\caption{Visualization of the edges of the network.} % subcaption
+        \label{fig:dataset_edges}
+	\end{subfigure}
+	\vspace{1em} % here you can insert horizontal or vertical space
+	\begin{subfigure}{0.32\textwidth} % width of left subfigure
 		\includegraphics[width=\textwidth]{media/labels_only_train.png}
-		\caption{} % subcaption
+		\caption{Visualization of unlabled nodes in the network. It's clear that the vast majority of nodes are unlabled. This is the dataset our GCN will train on.} % subcaption
         \label{fig:dataset_all}
 	\end{subfigure}
 	\vspace{1em} % here you can insert horizontal or vertical space
-	\begin{subfigure}{0.4\textwidth} % width of right subfigure
+    \begin{subfigure}{0.32\textwidth} % width of right subfigure
 		\includegraphics[width=\textwidth]{media/labels_all.png}
-        \caption{} % subcaption
+        \caption{Visualization of the dataset with all labels. For our experiments, our dataset actually has all labels. We remove all but twenty labels per class for training to simulate the sparsity with which a "real-world" dataset would be labeled. We use all labels at test-time to evaluate the accuracy of our model.} % subcaption
         \label{fig:dataset_train}
 	\end{subfigure}
-	\caption{\ref{fig:dataset_all}} % caption for whole figure
+	\caption{Citeseer~\cite{} citation network visualization using the Fruchterman-Reingold force-directed algorithm. Even with a na\"ive drawing algorithm, clusers of equally-labeled nodes are visible. For this dataset, our goal is to recover \ref{fig:dataset_all} given \ref{fig:dataset_train}.} % caption for whole figure
 \end{figure}
 
 
