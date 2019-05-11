@@ -45,16 +45,14 @@
 \maketitle
 
 \begin{abstract}
-  
+  Deep learning, particularly relating to image and text classification, has boomed in the 21\textsuperscript{st} century. State-of-the-Art models now achieve better-than-human performace at image classification tasks. Deep learning on graphs, however, has not been possible until recently. There is good reason to use the deep learning method on graph datasets. Social Networks, for example, have billions of nodes (people) and even more edges (relationships between people). It's obvious that a person's relationships can potentially carry alot of information about them (who they are, what they like, etc.). Traditional Deep-Learning models aren't equipped to deal with the kind of relationship data available in graphs. Graph Convoultional Networks were introduced by \cite{Kipf2016} in 2017. This paper is an explanation and attempted replication of their work.
 \end{abstract}
 
-\subfile{introduction}
+\subfile{introduction} 
 \subfile{gcn}
 \subfile{experiments}
 \subfile{conclusion}
 
-\section{Conclusion \& Future Work}
-The GCN model is shown to be more effective than other proposed methods of deep learning on graph data, but it is not without its flaws. The memory requirement is $\mathcal{O}(\mathcal{E})$, growing linearly with the dataset, so very large datasets can cause problems. Also, this model does not function well with more than a few layers. One paper that improves upon the GCN focuses on further understanding GCN while proposing a combined co-training and self-training method to improve classification accuracy without requiring additional labels in the training set~\cite{Li2018}. Another paper proposes adaptive layer-wise sampling to accelerate training and reduce memory requirements~\cite{Huang2018}. A third paper we want to research develops a new method of applying convolutional operations on graphs called learnable graph convolutional layers, which allows for deeper networks and yields higher classification accuracy with less memory usage than the GCN~\cite{Gao2018}. For the next part of the semester we plan on implementing a Graph Convolutional Network, hopefully utilizing some of the improvements developed above.
   
 \bibliographystyle{plain}
 \bibliography{references}
