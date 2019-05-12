@@ -1,21 +1,32 @@
 
 \section{Graph Convolutional Networks}
+Much of the research into deep learning with graphs is based on spectral graph theory, which is the analysis the properties and the structure of a graph from its spectrum, or set of eigenvalues and eigenvectors. In this overview we will focus on Kipf and Welling's research on semi-supervised classification using Graph Convolutional Networks (GCN)~\cite{Kipf2016}, which uses a first-order approximation of the spectral filters on graphs developed in previous research on GCNs~\cite{Bruna2013}. These spectral based GCNs look at convolutions as removing noise from a graph signal $x \in \mathbb{R}^n$ with a filter $g_\theta$, whereas spatial based GCNs use convolutions to aggregate neighbors' features. Kipf and Welling's GCN is derived from spectral graph convolutions, but operates like a spatial based GCN, as we will show later. To understand how the GCN operates, we will begin with the spectral graph convolution on undirected graphs:
 
-The success of deep learning paradigms such as convolutional neural networks (CNN) with Euclidean data (images, text and video) has led to research on how non-Euclidean data such as graphs can be effectively analyzed through deep learning. In a standard CNN, convolutions are relatively simple to compute, as input sizes are always uniform. Graphs make this more complicated, as they can have different numbers of unordered nodes, each with different numbers of neighbors~\cite{Wu2019}. Much of the research into deep learning with graphs is based on spectral graph theory, which is the analysis the properties and the structure of a graph from its spectrum, or set of eigenvalues and eigenvectors. In this overview we will focus on Kipf et al.'s research on semi-supervised classifications using Graph Convolutional Networks (GCN)~\cite{Kipf2016}, which uses a first-order approximation of the spectral filters on graphs developed in previous research on GCNs~\cite{Bruna2013}. These GCNs look at spectral convolutions as removing noise from a graph signal $x \in \mathbb{R}^n$ with a filter $g_\theta$,
 \begin{equation}
 \label{spectral_prop}
 g_\theta \star x = Ug_\theta U^Tx
 \end{equation}
-$g_\theta$ is understood as a function of eigenvalues of the normalized graph laplacian, $L = I_N - D^{-\frac{1}{2}}AD^{-\frac{1}{2}} = U\Lambda U^T$ where $A$ is the graph's adjacency matrix, $D$ is a diagonal matrix of node degrees, $D_{ii} = \sum_{j} (A_{i,j})$, $U$ is a matrix of eigenvectors ordered by eigenvalues, and $\Lambda$ is is the diagonal matrix of eigenvalues. Multiplication with $U$ is $\mathcal{O}(N^2) $ and finding the eigenvectors and eigenvalues of $L$ can grow very expensive for large graphs. To reduce the computational cost of GCNs, a truncated expansion of Chebyshev polynomials could be used to approximate $g_\theta (\Lambda)$~\cite{Defferrard2016}.
+$g_\theta$ is understood as a function of eigenvalues of the normalized graph laplacian, $L = I_N - D^{-\frac{1}{2}}AD^{-\frac{1}{2}} = U\Lambda U^T$ where $A$ is the graph's adjacency matrix, $D$ is a diagonal matrix of node degrees, $D_{ii} = \sum_{j} (A_{i,j})$, $U$ is a matrix of eigenvectors ordered by eigenvalues, and $\Lambda$ is is the diagonal matrix of eigenvalues. Multiplication with $U$ is $\mathcal{O}(N^2) $ and finding the eigenvectors and eigenvalues of $L$ can grow very expensive for large graphs. To reduce
+ the computational cost of GCNs, a truncated expansion of Chebyshev polynomials could be used to approximate $g_\theta (\Lambda)$~\cite{Defferrard2016}.
 Chebyshev polynomials are defined recursively as $T_k(x) = 2xT_{k-1}(x) - T_{k-2}(x)$ with $T_0(x) = 1$ and $T_1(x) = x$~\cite{Hammond2011}.
 \begin{equation}
 \label{cheby_prop}
-g_{\theta'} \star x \approx U(\sum\limits_{k=0}^{K}\theta'_k T_k (\tilde{\Lambda}))U^Tx = \sum\limits_{k=0}^{K} \theta'_k T_k (\tilde{L})x
+g_{\theta'} \star x \approx U(\sum\limits_{k=0}^{K}\theta'_k T_k (\tilde{\Lambda}))U^Tx
 \end{equation}
-This simplification can occur because $U \Lambda^k U^T = (U \Lambda U^T)^k = L^k $, so you can simplify the equation by using the Chebyshev polynomial of $\tilde{L} = \frac{2}{\lambda_{max}} L - I_n$. This approximation avoids any multiplication with $U$, significantly reducing the computation time. The propagation rule proposed in Kipf et al. further approximates Equation $(\ref{cheby_prop})$ by assuming $K = 1$ and $\lambda_{max} = 2$ (which makes $\tilde{L} = D^{-\frac{1}{2}}AD^{-\frac{1}{2}}$), reducing the computational cost even more and reduces overfitting on graphs with wide node degree distributions~\cite{Kipf2016}. These assumptions change Equation $(\ref{cheby_prop})$ to:
+where $\tilde{\Lambda} = \frac{2}{\lambda_{max}} \Lambda - I_n$. Notice that $U \Lambda^k U^T = (U \Lambda U^T)^k$, and recall that $L = U\Lambda U^T$. Therefore, we can replace $(U \Lambda U^T)^k$ with $L^k$
 \begin{equation}
-\label{reduce_k}
-g_{\theta'} \star x \approx \sum\limits_{k=0}^{1} \theta'_k T_k (D^{-\frac{1}{2}}AD^{-\frac{1}{2}})x = \theta'_0x + \theta'_1 D^{-\frac{1}{2}}AD^{-\frac{1}{2}}x 
+\label{simplified_cheby_prop}
+\sum\limits_{k=0}^{K} \theta'_k T_k (\tilde{L})x
+\end{equation}
+where  $\tilde{L} = \frac{2}{\lambda_{max}} L - I_n$. This approximation avoids any multiplication with the eigenvector matrix $U$, significantly reducing the computation time. The propagation rule proposed by Kipf and Welling can be understood as a first order approximation of Equation $(\ref{simplified_cheby_prop})$. First, they set $K = 1$
+\begin{equation}
+\label{firstorder_cheby}
+g_{\theta'} \star x \approx \sum\limits_{k=0}^{1} \theta'_k T_k (\tilde{L})x = \theta'_0 T_0 (\tilde{L})x + \theta'_1 T_1 (\tilde{L})x
+\end{equation}
+Then they set $\lambda_{max} = 2$ (which makes $\tilde{L} = D^{-\frac{1}{2}}AD^{-\frac{1}{2}}$), reducing the computational cost even more and reducing overfitting on graphs with wide node degree distributions~\cite{Kipf2016}.
+\begin{equation}
+\label{two_params}
+\theta'_0x + \theta'_1 D^{-\frac{1}{2}}AD^{-\frac{1}{2}}x 
 \end{equation}
 To reduce overfitting and minimize operations per layer, they only used a single parameter $\theta = \theta'_0 = -\theta'_1$, allowing the equation to be factored in this form:
 \begin{equation}
@@ -25,9 +36,27 @@ g_\theta \star x \approx \theta(I_N + D^{-\frac{1}{2}}AD^{-\frac{1}{2}})x
 One issue with this approximation is their decision to set $\lambda_{max} = 2$, meaning the eigenvalue range is $[0,2]$, which they found could cause numerical instability and exploding/vanish gradients in the GCN~\cite{Kipf2016}. They added self connections to the adjacency matrix, $\tilde{A} = A + I_N$, and used the diagonal matrix of the node degrees of $\tilde{A}$, replacing $I_N + D^{-\frac{1}{2}}AD^{-\frac{1}{2}}$ with $\hat{A} = \tilde{D}^{-\frac{1}{2}}\tilde{A}\tilde{D}^{-\frac{1}{2}}$. These additions bring us to the layer-wise propagation rule~\cite{Kipf2016}:
 \begin{equation}
 \label{prop_rule}
-H^{(l+1)} = \sigma(\hat{A}H^{(l)}W^{(l)})
+X^{(l+1)} = \sigma(\hat{A}X^{(l)}W^{(l)})
 \end{equation}
-$H^{(l)} \in \mathbb{R}^{N x C}$ is the input signal, where $H^{(0)} = X$, and $W^{(l)} \in \mathbb{R}^{C x F}$ is the filter parameter matrix for the current layer, $\sigma(\cdot)$ is an activation function, and $H^{(l+1)} \in \mathbb{R}^{N x F}$ is the convolved signal matrix~\cite{Kipf2016}. The renormalized adjacency matrix $\hat{A}$ can be represented as a sparse matrix, so multiplying $\hat{A}$ by $H^{(l)}$ only has a complexity of $\mathcal{O}(|\mathcal{E}|)$, giving the entire operation a complexity of $\mathcal{O}(|\mathcal{E}|FC)$.  This new graph convolution is localized in space, so each row of the output $Z$ contains a latent representation of each node of input $X$ as well as its neighbors, with values from $\hat{A}$ determining how much weight each neighbor is given in the latent representation.
+$H^{(l)} \in \mathbb{R}^{N x C}$ is the input signal, where $N$ is the number of nodes and $C$ is the number of features per node. Note that $X^{(0)} = X$, which is the input feature matrix. $W^{(l)} \in \mathbb{R}^{C x F}$ is the filter parameter matrix for the current layer, where $F$ is the number of output feature maps. $\sigma(\cdot)$ is an activation function, and $H^{(l+1)} \in \mathbb{R}^{N x F}$ is the convolved signal matrix~\cite{Kipf2016}. The renormalized adjacency matrix $\hat{A}$ can be represented as a sparse matrix, so multiplying $\hat{A}$ by $H^{(l)}$ only has a complexity of $\mathcal{O}(|\mathcal{E}|)$, giving the entire operation a complexity of $\mathcal{O}(|\mathcal{E}|FC)$.  This new graph convolution is localized in space, so each row of the output $Z$ contains a latent representation of each node of input $X$ as well as its neighbors, with values from $\hat{A}$ determining how much weight each neighbor is given in the latent representation.
+
+Recall that Kipf and Welling's GCN is derived from spectral graph convolutions but operates like a spatial graph convolution. Its actual mechanism acts like a feature aggregator between neighboring nodes, with each layer blending connecting nodes' features so that they are more similar. The goal of semi-supervised learning is to be able to learn from labeled and unlabeled nodes in order to classify all nodes in a graph, and densely connected nodes are more likely to share the same label. For example, in the citation network, Cora, that we trained our implementation with, there are seven different machine learning subjects that each paper could belong to. If paper A is labeled as Reinforcement Learning, and papers B and C both cite paper A, the graph convolution will combine A's features with B and C, and vice versa. Once B and C are more similar to A, it becomes easier to predict their labels.
+
+To understand how this occurs, we will first look at a simplified version of $\hat{A}X$, instead just multiplying the original adjacency matrix by the feature matrix.  
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.35]{media/AX.png}
+	\caption{Adjacency matrix $A$ multiplied by feature matrix $X$.} 
+	\label{fig:AX}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.35]{media/hatAX.png}
+	\caption{Symmetrically normalized adjacency matrix $\hat{A}$ multiplied by feature matrix $X$.} 
+	\label{fig:hatAX}
+\end{figure}
 
 \subsection{Model Architecture and Experiments}
 With Equation $(\ref{prop_rule})$, they build a deep learning model for semi-supervised node classification, where the goal is to classify all nodes in a graph where only a few have labels. They made a forward model for a 2 layer network using the propagation rule in Equation $(\ref{prop_rule})$:
