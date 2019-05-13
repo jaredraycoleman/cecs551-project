@@ -42,28 +42,37 @@ $H^{(l)} \in \mathbb{R}^{N x C}$ is the input signal, where $N$ is the number of
 
 Recall that Kipf and Welling's GCN is derived from spectral graph convolutions but operates like a spatial graph convolution. Its actual mechanism acts like a feature aggregator between neighboring nodes, with each layer blending connecting nodes' features so that they are more similar. The goal of semi-supervised learning is to be able to learn from labeled and unlabeled nodes in order to classify all nodes in a graph, and densely connected nodes are more likely to share the same label. For example, in the citation network, Cora, that we trained our implementation with, there are seven different machine learning subjects that each paper could belong to. If paper A is labeled as Reinforcement Learning, and papers B and C both cite paper A, the graph convolution will combine A's features with B and C, and vice versa. Once B and C are more similar to A, it becomes easier to predict their labels.
 
-To understand how this occurs, we will first look at a simplified version of $\hat{A}X$, instead just multiplying the original adjacency matrix by the feature matrix.  
+To understand how this occurs, we will first look at a simplified version of $\hat{A}X$, which is just multiplying the original adjacency matrix by the feature matrix.  
 
-\begin{figure}[h!]
+
+\begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.35]{media/AX.png}
-	\caption{Adjacency matrix $A$ multiplied by feature matrix $X$.} 
+	\caption{Adjacency matrix $A$ multiplied by feature matrix $X$} 
 	\label{fig:AX}
 \end{figure}
 
-\begin{figure}[h!]
+
+In Figure $(\ref{fig:AX})$, each node has a color feature. When the feature matrix is multiplied by the adjacency matrix, this results in each node losing its own features and replacing them with a summation of its neighbors features. This is represented by stacking colors. Obviously, this operation does not help with classifying unlabeled nodes. One of the biggest problems is that it causes nodes to lose their original features. Adding self connections to each node solves that problem.
+
+
+\begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.35]{media/hatAX.png}
-	\caption{Symmetrically normalized adjacency matrix $\hat{A}$ multiplied by feature matrix $X$.} 
-	\label{fig:hatAX}
+	\includegraphics[scale=0.35]{media/selfAX.png}
+	\caption{Adjacency matrix with self connections $\tilde{A} = A + I_N$ multiplied by feature matrix $X$.} 
+	\label{fig:selfAX}
 \end{figure}
 
-\subsection{Model Architecture and Experiments}
-With Equation $(\ref{prop_rule})$, they build a deep learning model for semi-supervised node classification, where the goal is to classify all nodes in a graph where only a few have labels. They made a forward model for a 2 layer network using the propagation rule in Equation $(\ref{prop_rule})$:
-\begin{equation}
-\label{forward_model}
-Z = f(X, A) = softmax(\hat{A} ReLU(\hat{A}XW^{(0)})W^{(1)})
-\end{equation}
-In this model, $W^{(0)} \in \mathbb{R}^{C x H}$ and $W^{(1)} \in \mathbb{R}^{H x F}$, $H$ being number of hidden features, and $F$ being the number of output features.
-In a supervised learning network, we could then calculate cross-entropy loss for all training examples, but in this semi-supervised learning network only a few examples have labels, so they evaluate loss by calculating cross-entropy error for each labeled example. Then $W^{(0)}$ and $W^{(1)}$ are trained via gradient descent.
-After training this model on graph datasets with only a few examples per class, and then testing it against other graph neural networks and other propagation rules discussed in this paper, they compared their 2 layer models with models from 1 to 10 layers deep, along with a variant that uses residual connections between layers. They found that 2 or 3 layer models gave the best results, with or without the residual connections. At deeper layers, overfitting became more of an issue, and the standard model's accuracy decreased more drastically than the model with residuals. 
+
+Now the operation results in the summation of each node's neighbor's features with its own. This is an improvement, but the operation alters the scale of each node's features and does not help with classifying unlabeled nodes. The goal is to maintain the scale of the features while blending them with their neighbors. To do this, they introduce the symmetrically normalized adjacency matrix.
+
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.35]{media/normAX.png}
+	\caption{Symmetrically normalized adjacency matrix $\hat{A} = \tilde{D}^{-\frac{1}{2}}\tilde{A}\tilde{D}^{-\frac{1}{2}}$ multiplied by feature matrix $X$.} 
+	\label{fig:normAX}
+\end{figure}
+
+
+This operation results in each node containing a weighted average of its and its neighbors features. This is developed by multiplying the inverse square root of the diagonal degree matrix on either side of the adjacency matrix with self connections. This gives each connection a different weight depending on how many connections each node has, and allows for neighboring nodes to grow more similar. As you can see, nodes $2$ and $3$ become an identical shade of grey-brown. This occurs because they have the same degree and the same connections. So if node $2$ had a label, it would be easy to also predict that node $3$ had the same label. However, node $0$ becomes a completely different color, so it will be difficult to misclassify it as the same label as node $2$.
