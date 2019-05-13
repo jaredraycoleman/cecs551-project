@@ -29,7 +29,7 @@ Then they set $\lambda_{max} = 2$ (which makes $\tilde{L} = D^{-\frac{1}{2}}AD^{
 \theta'_0x + \theta'_1 D^{-\frac{1}{2}}AD^{-\frac{1}{2}}x 
 \end{equation}
 To reduce overfitting and minimize operations per layer, they only used a single parameter $\theta = \theta'_0 = -\theta'_1$, allowing the equation to be factored in this form:
-\begin{equation}
+\begin{equation} 
 \label{single_param}
 g_\theta \star x \approx \theta(I_N + D^{-\frac{1}{2}}AD^{-\frac{1}{2}})x
 \end{equation}
