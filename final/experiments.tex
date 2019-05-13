@@ -22,7 +22,7 @@ In the forward pass, the first layer takes as input a matrix $x_{0}$ that contai
 
 \subsection{Datasets}
 
-We reproduced the experiments in~\cite{Kipf2016} on the Cora, Citesser and Pubmed datasets. In all three datasets, nodes are papers (documents) and the edges are citation links. Table~\ref{tab:datasets} shows the number of nodes, classes, features, and trainable nodes for each dataset. While training is only performed on nodes that have labels, recall in Equation (\ref{eq:model}) that the adjacency matrix is used in each convolutional layer. During training, all but twenty labels per class are removed from the graph. 
+We reproduced the experiments in~\cite{Kipf2016} on the Cora, Citeseer and Pubmed datasets. In all three datasets, nodes are papers (documents) and the edges are citation links. Table~\ref{tab:datasets} shows the number of nodes, classes, features, and trainable nodes for each dataset. While training is only performed on nodes that have labels, recall in Equation (\ref{eq:model}) that the adjacency matrix is used in each convolutional layer. During training, all but twenty labels per class are removed from the graph. 
 
 \begin {table}[ht!]
   \begin{center}
@@ -106,7 +106,7 @@ The results for Experiment 2 are presented in Table~\ref{tab:results2}.
     \hline
     Dataset    &  Training Accuracy & Validation Accuracy & Testing Accuracy\\ \hline
     Cora          & 98.57 \% & 75.80 \%  & 81.80 \% \\ 
-    Citesser      & 100.00 \%& 67.20 \%  & 71.20 \% \\
+    Citeseer      & 100.00 \%& 67.20 \%  & 71.20 \% \\
     Pubmed        & 100.00 \%& 77.80 \%  & 79.30 \% \\
     \hline
     \end{tabular}
