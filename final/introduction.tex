@@ -3,7 +3,7 @@
 Social networks (Facebook, Twitter, etc.), citation graphs, travel networks (roads, planes, trains, etc.), and product networks are just a few examples of existing graph datasets with anywhere from hundreds to billions of nodes and edges. Despite the obvious potential for learning from these massive, information-rich datasets, attempts at applying machine learning techniques to them have failed until recently. There has been extensive research in the area over the past decade and a recent paper published in 2017 by Kipf and Welling~\cite{Kipf2016} introduced a computationally efficient neural network model. Before diving into the details of their model, we discuss reason why traditional methods are insufficient for graph datasets. 
 
 \subsection{Graph Datasets} \label{sec:network-datasets}
-In a typical graph dataset, nodes have a set of features, called the \textit{feature vector}, and a set of relationships with other nodes, called \textit{edges}. All graphs used in this paper are unweighted and are made to be undirected in preprocessing. While all nodes have a feature vector and edges, only some of them have a \textit{label}. Ultimately, our goal is to accurately label all unlabled nodes in the graph by learning from their relationships with labeled nodes. This is a semi-supervised learning problem since we are learning from both labeled and unlabeled data points. 
+In a typical graph dataset, nodes have a set of features, called the \textit{feature vector}, and a set of relationships with other nodes, called \textit{edges}. All graphs used in this paper are unweighted and are made to be undirected in preprocessing. While all nodes have a feature vector and edges, only some of them have a \textit{label}. Ultimately, our goal is to accurately label all unlabeled nodes in the graph by learning from their relationships with labeled nodes. This is a semi-supervised learning problem since we are learning from both labeled and unlabeled data points. 
 
 
 \begin{figure}
@@ -16,7 +16,7 @@ In a typical graph dataset, nodes have a set of features, called the \textit{fea
 	\vspace{1em} % here you can insert horizontal or vertical space
 	\begin{subfigure}{0.32\textwidth} % width of left subfigure
 		\includegraphics[width=\textwidth]{media/labels_only_train.png}
-		\caption{Visualization of unlabled nodes in the network. It's clear that the vast majority of nodes are unlabled. This is the dataset our GCN will train on.} % subcaption
+		\caption{Visualization of unlabeled nodes in the network. It's clear that the vast majority of nodes are unlabeled. This is the dataset our GCN will train on.} % subcaption
         \label{fig:dataset_train}
 	\end{subfigure}
 	\vspace{1em} % here you can insert horizontal or vertical space
