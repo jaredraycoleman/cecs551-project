@@ -11,3 +11,4 @@
 **/*.dvi
 **/*.fls
 **/*.fdb_latexmk
+**/*.xcf
