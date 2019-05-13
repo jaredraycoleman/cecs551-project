@@ -11,7 +11,4 @@
 **/*.dvi
 **/*.fls
 **/*.fdb_latexmk
-<<<<<<< HEAD
 **/*.xcf
-=======
->>>>>>> final/experiments
