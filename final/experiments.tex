@@ -1,6 +1,6 @@
 \section{Experiments}
 
-A main goal of this work was to reproduce the main experiment in~\cite{Kipf2016}, perform our own experiments, and compare our results to theirs. The authors of the paper offer an implementation in TensorFlow. Rather than use their code, we reimplemented the propsed model using PyTorch. 
+A main goal of this work was to reproduce the main experiment in~\cite{Kipf2016}, perform our own experiments, and compare our results to theirs. The authors of the paper offer an implementation in TensorFlow. Rather than use their code, we re-implemented the proposed model using PyTorch. 
 
 \subsection{The Model}
 The model is a 2-layer neural network, and can be written as the following equation:
@@ -18,11 +18,11 @@ The model is a 2-layer neural network, and can be written as the following equat
   \label{fig:model}
 \end{figure}
 
-In the forward pass, the first layer takes as input a matrix $x_{0}$ that contains the features for each node in the graph. The dot product of this matrix with the \textit{normalized adjacency matrix} $\hat{A}$ and the weight matrix $w_{0}$ is passed through the \textit{RelU} activation function and then used as the input for the next layer. In layer 2, the dot product of $x_{1}$ (output from layer 1) with the same \textit{normalized adjacency matrix} $\hat{A}$ and a second matrix of weights $w_{1}$. Finally, the matrix produced by the second layer is passed through a \textit{softmax} layer to generate a score for each class.
+In the forward pass, the first layer takes as input a matrix $x_{0}$ that contains the features for each node in the graph. The dot product of this matrix with the \textit{normalized adjacency matrix} $\hat{A}$ and the weight matrix $w_{0}$ is passed through the \textit{ReLU} activation function and then used as the input for the next layer. In layer 2, the dot product of $x_{1}$ (output from layer 1) with the same \textit{normalized adjacency matrix} $\hat{A}$ and a second matrix of weights $w_{1}$. Finally, the matrix produced by the second layer is passed through a \textit{softmax} layer to generate a score for each class.
 
 \subsection{Datasets}
 
-We reproduced the experiments in~\cite{Kipf2016} on the Cora, Citesser and Pubmed datasets. In all three datasets, nodes are papers (documents) and the edges are citation links. Table~\ref{tab:datasets} shows the number of nodes, classes, features, and trainable nodes for each dataset. While training is only performed on nodes that have labels, recall in Equation \ref{eq:model} that the adjacency matrix is used in each convolutional layer. During training, all but twenty labels per class are removed from the graph. 
+We reproduced the experiments in~\cite{Kipf2016} on the Cora, Citeseer and Pubmed datasets. In all three datasets, nodes are papers (documents) and the edges are citation links. Table~\ref{tab:datasets} shows the number of nodes, classes, features, and trainable nodes for each dataset. While training is only performed on nodes that have labels, recall in Equation \ref{eq:model} that the adjacency matrix is used in each convolutional layer. During training, all but twenty labels per class are removed from the graph. 
 
 \begin {table}[ht!]
   \begin{center}
@@ -68,7 +68,7 @@ We reproduced the authors' experiments with the hyperparameters presented in Tab
     \hline
     Dataset    &  Training Accuracy & Validation Accuracy & Testing Accuracy & \cite{Kipf2016} Testing Accuracy \\ \hline
     Cora          & 99.43 \% & 73.80 \%  & 81.05 \% & 81.50 \% \\ 
-    Citesser      & 94.92 \% & 62.84 \%  & 71.70 \% & 70.30 \% \\
+    Citeseer      & 94.92 \% & 62.84 \%  & 71.70 \% & 70.30 \% \\
     Pubmed        & 98.67 \% & 76.28 \%  & 80.00 \% & 79.00 \% \\
     \hline
     \end{tabular}
@@ -114,7 +114,7 @@ The results for Experiment 2 are presented in Table~\ref{tab:results2}.
 \caption {Results from Experiment 2.} \label{tab:results2} 
 \end{table}
 
-The hyperparameters we found through Experiment 2 result in slightly worse Validation Accuracies than in Experiment 2. Overfitting is also slightly worse in Experiment 2. Overall, however, accuracies between the two experiments follow the same trends and small differences are probably a result of the extent to which Kipf and Welling fine-tuned their parameters. 
+The hyperparameters we found through Experiment 2 result in slightly worse Validation Accuracy than in Experiment 2. Overfitting is also slightly worse in Experiment 2. However, both experiments' accuracy follow the same trends and small differences are probably a result of the extent to which Kipf and Welling fine-tuned their parameters. 
 
 \subsection{Loss}
 
@@ -134,7 +134,7 @@ Y is the ground truth and Z is the prediction (output of the model). Tables~\ref
   \hline
   Dataset       &  Loss\\ \hline
   Cora          & 0.7964997291564941 \\ 
-  Citesser      & 0.9455778002738953 \\
+  Citeseer      & 0.9455778002738953 \\
   Pubmed        & 0.5608009696006775 \\
   \hline
   \end{tabular}
@@ -148,7 +148,7 @@ Y is the ground truth and Z is the prediction (output of the model). Tables~\ref
   \hline
   Dataset       &  Loss\\ \hline
   Cora          & 0.7033339738845825 \\ 
-  Citesser      & 0.9455778002738953 \\
+  Citeseer      & 0.9455778002738953 \\
   Pubmed        & 0.5608009696006775 \\
   \hline
   \end{tabular}
