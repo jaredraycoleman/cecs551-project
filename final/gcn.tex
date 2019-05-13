@@ -1,6 +1,6 @@
 
 \section{Graph Convolutional Networks}
-Much of the research into deep learning with graphs is based on spectral graph theory, which is the analysis the properties and the structure of a graph from its spectrum, or set of eigenvalues and eigenvectors. In this overview we will focus on Kipf and Welling's research on semi-supervised classification using Graph Convolutional Networks (GCN)~\cite{Kipf2016}, which uses a first-order approximation of the spectral filters on graphs developed in previous research on GCNs~\cite{Bruna2013}. These spectral based GCNs look at convolutions as removing noise from a graph signal $x \in \mathbb{R}^n$ with a filter $g_\theta$, whereas spatial based GCNs use convolutions to aggregate neighbors' features. Kipf and Welling's GCN is derived from spectral graph convolutions, but operates like a spatial based GCN, as we will show later. To understand how the GCN operates, we will begin with the spectral graph convolution on undirected graphs:
+Much of the research into deep learning with graphs is based on spectral graph theory, which is the analysis the properties and the structure of a graph from its spectrum, or set of eigenvalues and eigenvectors. As discussed above, we will focus on Kipf and Welling's graph convolutional network (GCN)~\cite{Kipf2016}, which uses a first-order approximation of the spectral filters on graphs developed in previous research on GCNs~\cite{Bruna2013}. These spectral based GCNs look at convolutions as removing noise from a graph signal $x \in \mathbb{R}^n$ with a filter $g_\theta$, whereas spatial based GCNs use convolutions to aggregate neighbors' features. Kipf and Welling's GCN is derived from spectral graph convolutions, but operates like a spatial based GCN, as we will show later. To understand how the GCN operates, we will begin with the spectral graph convolution on undirected graphs:
 
 \begin{equation}
 \label{spectral_prop}
@@ -53,7 +53,7 @@ To understand how this occurs, we will first look at a simplified version of $\h
 \end{figure}
 
 
-In Figure $(\ref{fig:AX})$, each node has a color feature. When the feature matrix is multiplied by the adjacency matrix, this results in each node losing its own features and replacing them with a summation of its neighbors features. This is represented by stacking colors. Obviously, this operation does not help with classifying unlabeled nodes. One of the biggest problems is that it causes nodes to lose their original features. Adding self connections to each node solves that problem.
+In Figure $\ref{fig:AX}$, each node has a color feature. When the feature matrix is multiplied by the adjacency matrix, this results in each node losing its own features and replacing them with a summation of its neighbors features. This is represented by stacking colors. Obviously, this operation does not help with classifying unlabeled nodes. One of the biggest problems is that it causes nodes to lose their original features. Adding self connections to each node solves that problem.
 
 
 \begin{figure}[h]
@@ -64,7 +64,7 @@ In Figure $(\ref{fig:AX})$, each node has a color feature. When the feature matr
 \end{figure}
 
 
-Now the operation results in the summation of each node's neighbor's features with its own. This is an improvement, but the operation alters the scale of each node's features and does not help with classifying unlabeled nodes. The goal is to maintain the scale of the features while blending them with their neighbors. To do this, they introduce the symmetrically normalized adjacency matrix.
+Now, in Figure $\ref{fig:selfAX}$, the operation results in the summation of each node's neighbor's features with its own. This is an improvement, but the operation alters the scale of each node's features and does not help with classifying unlabeled nodes. The goal is to maintain the scale of the features while blending them with their neighbors. To do this, they introduce the symmetrically normalized adjacency matrix.
 
 
 \begin{figure}[h]
@@ -75,4 +75,4 @@ Now the operation results in the summation of each node's neighbor's features wi
 \end{figure}
 
 
-This operation results in each node containing a weighted average of its and its neighbors features. This is developed by multiplying the inverse square root of the diagonal degree matrix on either side of the adjacency matrix with self connections. This gives each connection a different weight depending on how many connections each node has, and allows for neighboring nodes to grow more similar. As you can see, nodes $2$ and $3$ become an identical shade of grey-brown. This occurs because they have the same degree and the same connections. So if node $2$ had a label, it would be easy to also predict that node $3$ had the same label. However, node $0$ becomes a completely different color, so it will be difficult to misclassify it as the same label as node $2$.
+Shown in Figure $\ref{fig:normAX}$, this operation results in each node containing a weighted average of its and its neighbors features. This is developed by multiplying the inverse square root of the diagonal degree matrix on either side of the adjacency matrix with self connections. Each connection has a different weight depending on how many connections each node has, and allows for neighboring nodes to grow more similar. As you can see, nodes $2$ and $3$ become an identical shade of grey-brown, because they have the same degree and the same connections. So if node $2$ had a label, it would be easy to also predict that node $3$ had the same label. However, node $0$ becomes a completely different color, so it will be difficult to misclassify it as the same label as node $2$. With this intuitive understanding of how each node's features are made to be more like their neighbors, we can now move on to explaining the model architecture and our experiments.
