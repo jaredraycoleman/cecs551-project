@@ -22,9 +22,10 @@ Following the experiments of (mention paper here again), we used 3 of their 4 da
 
 \subsection{The Model}
 The model utilized by the authors' is a 2-layer convolution network, and the model can be represented by Equation \ref{Equation1}.
-\begin{align*}
-    Z = f(x,A) &= softmax(\hat{A}ReLU(\hat{A}XW_{0})W_{1}) 
-\end{align*}\label{Equation1}
+\begin{equation}
+    \label{Equation1}
+    Z = f(x,A) = softmax(\hat{A}ReLU(\hat{A}XW_{0})W_{1}) 
+\end{equation}
 
 Figure \ref{fig:model} illustrates the set up.
 
@@ -62,7 +63,7 @@ We reproduced the authors' experiment with the hyperparameters presented in Tabl
   \end{center}
 \end{table}
 
-The Citeseer dataset was challenging, since it required some adjusments because it contains isolate nodes . The results for this experiment are described in Table \ref{tab:results1}.
+ The results for this experiment are described in Table \ref{tab:results1}.
 
 \begin {table}[ht]
 \caption {Results Experiment 1} \label{tab:results1} 
@@ -78,7 +79,7 @@ The Citeseer dataset was challenging, since it required some adjusments because 
   \end{center}
 \end{table}
 
-From the results in Table \ref{tab:results1} for Validation Accuracy, it is clear that overfitting is a problem in this experiment, since the training set is very small, only the nodes that have labels. For this same reason, we get very high Training Accuracy. 
+From the results in Table \ref{tab:results1} for Validation Accuracy, it is clear that overfitting is a problem in this experiment, since the training set is very small, the entire model is only trained on the labeled nodes, therefore there is low generalization. For this same reason, we get very high Training Accuracy. 
 
 \subsection{Experiment 2}
 In experiment 2, we trained the Cora dataset and fine tuned our own hyperparameters as presented in Table \ref{tab:hyperparameters2}.
@@ -120,11 +121,40 @@ The same behavior for Validation and Training Accuracy were observed in this exp
 
 \subsection{Loss}
 
-The loss fucntion for this experiment is the standard \textit{cross-entropy loss} and it is represented by Equation \ref{Equation2}.
+The loss function for this experiment is the standard \textit{cross-entropy loss} and it is represented by Equation \ref{loss}.
 
-\begin{align*}
-  \mathcal{L} &= - \sum_{l \in \mathcal{Y}_{L}} \sum_{f=1}^{F} Y_{lf}lnZ_{lf}  
-\end{align*}\label{Equation2}
+\begin{equation}
+  \label{loss}
+  \mathcal{L} = - \sum_{l \in \mathcal{Y}_{L}} \sum_{f=1}^{F} Y_{lf}lnZ_{lf}  
+\end{equation}
 
-Where Y represents the ground truth and Z the predictions.
+Where Y represents the ground truth and Z the predictions. Just as the training the loss, is also calculated on the subset of the nodes that were labeled. Our results for loss are described in Tables \ref{tab:loss1} and \ref{tab:loss2}.
 
+\begin {table}[ht]
+\caption {Loss Experiment 1} \label{tab:loss1} 
+  \begin{center}
+    \begin{tabular}{|c|c|}
+    \hline
+    Dataset    &  Loss\\ \hline
+    Cora          & 0.7964997291564941 \\ 
+    Citesser      & 0.9455778002738953 \\
+    Pubmed        & 0.5608009696006775 \\
+    \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+
+\begin {table}[ht]
+\caption {Loss Experiment 2} \label{tab:loss2} 
+  \begin{center}
+    \begin{tabular}{|c|c|}
+    \hline
+    Dataset    &  Loss\\ \hline
+    Cora          & 0.7033339738845825 \\ 
+    Citesser      & 0.9455778002738953 \\
+    Pubmed        & 0.5608009696006775 \\
+    \hline
+    \end{tabular}
+  \end{center}
+\end{table}
